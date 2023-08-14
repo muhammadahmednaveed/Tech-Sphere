@@ -1,0 +1,80 @@
+<div class="card shadow-sm onhover">
+  <img
+    (click)="openProduct(this.prod)"
+    src="{{ this.prod.ImageUrl }}"
+    class="btn"
+    width="100%"
+    height="300"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label="Placeholder: Thumbnail"
+    preserveAspectRatio="xMidYMid slice"
+    focusable="false"
+  />
+
+  <div class="card-body">
+    <p
+      (click)="openProduct(this.prod)"
+      class="card-text fw-bold btn"
+      style="
+        height: 30px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        white-space: pre-wrap;
+      "
+    >
+      {{ this.prod?.Title }}
+    </p>
+    <p
+      (click)="openProduct(this.prod)"
+      class="card-text btn"
+      style="
+        height: 80px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        white-space: pre-wrap;
+      "
+    >
+      {{ this.prod?.Description }}
+    </p>
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="btn-group">
+        <p class="fw-bold">
+          {{ this.prod?.Price | currency }}
+        </p>
+      </div>
+      <input
+        *ngIf="this.prod.Inventory != 0"
+        type="number"
+        [(ngModel)]="value"
+        value="1"
+        min="1"
+        [max]="this.prod?.Inventory"
+        style="width: 40px"
+        onkeydown="return false"
+      />
+    </div>
+    <div class="d-flex justify-content-between align-items-center">
+      <p class="text">
+        <i class="fa fa-star" aria-hidden="true"></i> {{ this.prod?.Rating }}
+      </p>
+      <div class="btn-group">
+        <button
+          *ngIf="this.prod.Inventory != 0"
+          type="button"
+          class="btn btn-sm btn-primary"
+          (click)="addToCart(this.prod)"
+        >
+          Add to cart
+        </button>
+        <em class="text-danger" *ngIf="this.prod.Inventory == 0"
+          ><strong>Sold Out</strong></em
+        >
+      </div>
+    </div>
+  </div>
+</div>

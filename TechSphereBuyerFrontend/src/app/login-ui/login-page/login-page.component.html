@@ -1,0 +1,64 @@
+<div class="album py-5">
+  <div class="container w-50">
+    <h1 class="text-center">Login</h1>
+
+    <div class="container w-50">
+      <form [formGroup]="loginForm" (ngSubmit)="loginTry()" novalidate>
+        <div class="form-group mt-5">
+          <label for="exampleInputEmail1">Username</label>
+          <input
+            type="text"
+            class="form-control mt-2"
+            formControlName="Username"
+            placeholder="Enter username"
+            autocomplete="on"
+          />
+
+          <small
+            class="form-text text-danger"
+            *ngIf="
+            loginForm.controls['Username'].touched &&
+            loginForm.controls['Username'].errors?.['required']
+            "
+          >
+            Please enter a username
+          </small>
+        </div>
+
+        <div class="form-group mt-3">
+          <label for="exampleInputPassword1">Password</label>
+          <input
+            type="password"
+            class="form-control mt-2"
+            formControlName="Password"
+            placeholder="Password"
+          />
+          <small
+            class="form-text text-danger"
+            *ngIf="
+          loginForm.controls['Password'].touched &&
+          loginForm.controls['Password'].errors?.['required']
+          "
+          >
+            Please enter a password
+          </small>
+        </div>
+        <div class="text-center mt-3">
+          <button
+            type="submit"
+            class="btn btn-primary mt-2"
+            [disabled]="!loginForm.valid"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+      <div class="text-center mt-3">
+        <p>Are you new here? <a routerLink="/Account/register">Register</a></p>
+        <p>
+          Are you a seller?<a href="http://cmdlhrltx332:3000/">Login Here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

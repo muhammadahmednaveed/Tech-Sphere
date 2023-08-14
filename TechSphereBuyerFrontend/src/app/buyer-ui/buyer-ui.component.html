@@ -1,0 +1,12 @@
+<app-header></app-header>
+
+<div
+  *ngFor="let message of messages"
+  class="alert alert-primary"
+  style="margin-bottom: 0"
+  role="alert"
+>
+  {{ message }}<br />
+</div>
+
+<router-outlet></router-outlet>
