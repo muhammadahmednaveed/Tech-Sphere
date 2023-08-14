@@ -1,0 +1,924 @@
+USE [master]
+GO
+/****** Object:  Database [ProjectDB]    Script Date: 7/26/2023 2:06:59 AM ******/
+CREATE DATABASE [ProjectDB]
+CONTAINMENT = NONE
+ON  PRIMARY 
+( NAME = N'ShopCure', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\DATA\ShopCure.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+LOG ON 
+( NAME = N'ShopCure_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\DATA\ShopCure_log.ldf' , SIZE = 204800KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+GO
+ALTER DATABASE [ProjectDB] SET COMPATIBILITY_LEVEL = 140
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [ProjectDB].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [ProjectDB] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [ProjectDB] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [ProjectDB] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [ProjectDB] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [ProjectDB] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [ProjectDB] SET AUTO_CLOSE OFF 
+GO
+ALTER DATABASE [ProjectDB] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [ProjectDB] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [ProjectDB] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [ProjectDB] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [ProjectDB] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [ProjectDB] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [ProjectDB] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [ProjectDB] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [ProjectDB] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [ProjectDB] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [ProjectDB] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [ProjectDB] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [ProjectDB] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [ProjectDB] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [ProjectDB] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [ProjectDB] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [ProjectDB] SET RECOVERY FULL 
+GO
+ALTER DATABASE [ProjectDB] SET  MULTI_USER 
+GO
+ALTER DATABASE [ProjectDB] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [ProjectDB] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [ProjectDB] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [ProjectDB] SET TARGET_RECOVERY_TIME = 60 SECONDS 
+GO
+ALTER DATABASE [ProjectDB] SET DELAYED_DURABILITY = DISABLED 
+GO
+EXEC sys.sp_db_vardecimal_storage_format N'Project', N'ON'
+GO
+ALTER DATABASE [ProjectDB] SET QUERY_STORE = OFF
+GO
+USE [ProjectDB]
+GO
+/****** Object:  User [Login]    Script Date: 7/26/2023 2:06:59 AM ******/
+CREATE USER [Login] FOR LOGIN [Login] WITH DEFAULT_SCHEMA=[dbo]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [Login]
+GO
+ALTER ROLE [db_accessadmin] ADD MEMBER [Login]
+GO
+ALTER ROLE [db_securityadmin] ADD MEMBER [Login]
+GO
+ALTER ROLE [db_ddladmin] ADD MEMBER [Login]
+GO
+ALTER ROLE [db_backupoperator] ADD MEMBER [Login]
+GO
+ALTER ROLE [db_datareader] ADD MEMBER [Login]
+GO
+ALTER ROLE [db_datawriter] ADD MEMBER [Login]
+GO
+ALTER ROLE [db_denydatareader] ADD MEMBER [Login]
+GO
+ALTER ROLE [db_denydatawriter] ADD MEMBER [Login]
+GO
+/****** Object:  UserDefinedDataType [dbo].[ssn]    Script Date: 7/26/2023 2:06:59 AM ******/
+CREATE TYPE [dbo].[ssn] FROM [varchar](11) NOT NULL
+GO
+/****** Object:  UserDefinedTableType [dbo].[ProductQuantityList]    Script Date: 7/26/2023 2:06:59 AM ******/
+CREATE TYPE [dbo].[ProductQuantityList] AS TABLE(
+    [ProductId] [int] NULL,
+    [Quantity] [int] NULL
+)
+GO
+/****** Object:  Table [dbo].[ProductsHistory]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ProductsHistory](
+    [productId] [int] NOT NULL,
+    [title] [varchar](55) NULL,
+    [description] [varchar](max) NULL,
+    [category] [varchar](55) NULL,
+    [price] [float] NULL,
+    [inventory] [int] NULL,
+    [imageUrl] [varchar](max) NULL,
+    [rating] [float] NULL,
+    [sellerId] [int] NULL,
+    [isActive] [bit] NULL,
+    [validFrom] [datetime2](7) NOT NULL,
+    [validTo] [datetime2](7) NOT NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Index [ix_ProductsHistory]    Script Date: 7/26/2023 2:06:59 AM ******/
+CREATE CLUSTERED INDEX [ix_ProductsHistory] ON [dbo].[ProductsHistory]
+(
+    [validTo] ASC,
+    [validFrom] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Products]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Products](
+    [productId] [int] IDENTITY(1,1) NOT NULL,
+    [title] [varchar](55) NULL,
+    [description] [varchar](max) NULL,
+    [category] [varchar](55) NULL,
+    [price] [float] NULL,
+    [inventory] [int] NULL,
+    [imageUrl] [varchar](max) NULL,
+    [rating] [float] NULL,
+    [sellerId] [int] NULL,
+    [isActive] [bit] NULL,
+    [validFrom] [datetime2](7) GENERATED ALWAYS AS ROW START NOT NULL,
+    [validTo] [datetime2](7) GENERATED ALWAYS AS ROW END NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+    [productId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+    PERIOD FOR SYSTEM_TIME ([validFrom], [validTo])
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+WITH
+(
+SYSTEM_VERSIONING = ON ( HISTORY_TABLE = [dbo].[ProductsHistory] )
+)
+GO
+/****** Object:  Table [dbo].[CartDetails]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CartDetails](
+    [detailId] [int] IDENTITY(1,1) NOT NULL,
+    [cartId] [int] NULL,
+    [productID] [int] NULL,
+    [productQuantity] [int] NULL,
+    [productTotalPrice] [float] NULL,
+PRIMARY KEY CLUSTERED 
+(
+    [detailId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CartHeader]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CartHeader](
+    [cartId] [int] IDENTITY(1,1) NOT NULL,
+    [buyerId] [int] NULL,
+    [totalPrice] [float] NULL,
+    [Date] [datetime] NULL,
+    [isActive] [bit] NULL,
+PRIMARY KEY CLUSTERED 
+(
+    [cartId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[rejectedtokens]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[rejectedtokens](
+    [tokens] [varchar](max) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SigningKeys]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SigningKeys](
+    [id] [int] IDENTITY(1,1) NOT NULL,
+    [keys] [varchar](50) NULL,
+PRIMARY KEY CLUSTERED 
+(
+    [id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UniqueProducts]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UniqueProducts](
+    [serialNumber] [uniqueidentifier] NOT NULL,
+    [productId] [int] NULL,
+    [buyerId] [int] NULL,
+    [isSold] [bit] NULL,
+    [isActive] [bit] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Users]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Users](
+    [userId] [int] IDENTITY(1,1) NOT NULL,
+    [fullName] [varchar](55) NULL,
+    [userName] [varchar](max) NULL,
+    [email] [varchar](55) NULL,
+    [passwordHash] [varbinary](256) NULL,
+    [passwordSalt] [varbinary](256) NULL,
+    [userType] [varchar](10) NULL,
+    [validFrom] [datetime2](7) GENERATED ALWAYS AS ROW START NOT NULL,
+    [validTo] [datetime2](7) GENERATED ALWAYS AS ROW END NOT NULL,
+    [IsActive] [bit] NULL,
+PRIMARY KEY CLUSTERED 
+(
+    [userId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+    PERIOD FOR SYSTEM_TIME ([validFrom], [validTo])
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[Products] ADD  DEFAULT ((0)) FOR [rating]
+GO
+ALTER TABLE [dbo].[Products] ADD  DEFAULT ((1)) FOR [isActive]
+GO
+ALTER TABLE [dbo].[UniqueProducts] ADD  DEFAULT (newid()) FOR [serialNumber]
+GO
+ALTER TABLE [dbo].[UniqueProducts] ADD  DEFAULT (NULL) FOR [buyerId]
+GO
+ALTER TABLE [dbo].[UniqueProducts] ADD  DEFAULT ((0)) FOR [isSold]
+GO
+ALTER TABLE [dbo].[UniqueProducts] ADD  DEFAULT ((1)) FOR [isActive]
+GO
+ALTER TABLE [dbo].[Users] ADD  DEFAULT ((1)) FOR [IsActive]
+GO
+ALTER TABLE [dbo].[CartDetails]  WITH CHECK ADD FOREIGN KEY([cartId])
+REFERENCES [dbo].[CartHeader] ([cartId])
+GO
+ALTER TABLE [dbo].[CartDetails]  WITH CHECK ADD FOREIGN KEY([productID])
+REFERENCES [dbo].[Products] ([productId])
+GO
+ALTER TABLE [dbo].[CartHeader]  WITH CHECK ADD FOREIGN KEY([buyerId])
+REFERENCES [dbo].[Users] ([userId])
+GO
+ALTER TABLE [dbo].[Products]  WITH CHECK ADD FOREIGN KEY([sellerId])
+REFERENCES [dbo].[Users] ([userId])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[UniqueProducts]  WITH CHECK ADD FOREIGN KEY([buyerId])
+REFERENCES [dbo].[Products] ([productId])
+GO
+ALTER TABLE [dbo].[UniqueProducts]  WITH CHECK ADD FOREIGN KEY([productId])
+REFERENCES [dbo].[Products] ([productId])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+/****** Object:  StoredProcedure [dbo].[sp_AddProduct]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_AddProduct]
+(
+    @title varchar(55),
+    @description varchar(max),
+    @category varchar(55),
+    @price float,
+    @inventory int,
+    @imageUrl varchar(max),
+    @sellerId int
+)
+AS
+BEGIN
+    DECLARE
+        @id int,
+        @counter int = 1
+    INSERT INTO Products(title, description, category, price, inventory, imageUrl, sellerId)
+    VALUES(@title,@description,@category,@price,@inventory,@imageUrl,@sellerId)
+    Select @id = Scope_Identity()
+
+
+
+
+    --Insert values in UniquesProducts table
+    WHILE @counter <= @inventory
+    BEGIN
+        INSERT INTO UniqueProducts(productId)
+        VALUES(@id)
+        SET @counter= @counter + 1
+    END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_addRejectedToken]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_addRejectedToken]
+@tokens varchar(max)
+
+
+
+
+AS  
+BEGIN  
+    -- SET NOCOUNT ON added to prevent extra result sets from  
+    -- interfering with SELECT statements.  
+    SET NOCOUNT OFF; 
+    INSERT INTO rejectedtokens
+    VALUES (@tokens)
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_AddToCart]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE     procedure [dbo].[sp_AddToCart]
+@buyerId int,
+@productId int,
+@quantity int
+
+
+
+
+As
+Begin
+DECLARE @productPrice float
+SET @productPrice = (select price from Products where productId=@productId)
+
+
+
+
+
+
+
+IF (Select count(*) from CartHeader where buyerId=@buyerId and isActive = 1)>0
+begin
+        IF (Select count(*) from CartDetails where productID=@productId and cartId=(select cartID from CartHeader where buyerID = @buyerId and isActive =1))>0
+        begin
+        update CartDetails set productQuantity=@quantity,productTotalPrice=@quantity*@productPrice where productID=@productId and cartId=(select cartID from CartHeader where buyerID = @buyerId and isActive =1)
+        end
+        ELSE
+        begin
+        insert into CartDetails values((select cartID from CartHeader where buyerID = @buyerId and isActive =1) , @productId,@quantity,@quantity*@productPrice)
+        end
+        update CartHeader set totalPrice=(select sum(productTotalPrice) from CartDetails where cartId=(SELECT cartId FROM CARTHEADER where buyerID = @buyerId and isActive =1)),Date=GETDATE() where buyerID = @buyerId and isActive =1
+end
+ELSE 
+    begin
+    insert into CartHeader values(@buyerID,@quantity*@productPrice,getdate(),1)
+    insert into CartDetails values((select cartID from CartHeader where buyerID = @buyerId and isActive =1) , @productId,@quantity,@quantity*@productPrice)    
+    end
+end
+GO
+/****** Object:  StoredProcedure [dbo].[sp_CheckIfUserNameExists]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_CheckIfUserNameExists]
+    @userName varchar(50)
+AS
+BEGIN
+  SELECT * FROM Users WHERE    userName = @userName    
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Checkout]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+CREATE       procedure [dbo].[sp_Checkout]
+@buyerId int,
+@cartId int
+As
+Begin
+if((select count(cartId) from cartheader where buyerid=@buyerId and isActive=1) > 0)
+begin
+
+
+
+
+select productID,productQuantity into #temp1 from CartDetails where cartId =@cartId
+    Select a.productId,a.inventory, b.productQuantity,a.inventory-b.productQuantity as diff into #temp2 FROM Products a inner JOIN #temp1 b on b.ProductId=a.productId
+    IF((Select count(diff) from #temp2 where diff<0) =0)
+    BEGIN
+    UPDATE a set a.inventory=b.diff from Products a inner join #temp2 b on b.ProductId=a.productId
+    update CartHeader set isActive=0,Date=getdate() where cartId=@cartId
+    END
+    ELSE THROW 50001, 'Quantity exceeds the current inventory', 1
+
+
+
+
+
+    drop table #temp1
+    drop table #temp2
+End
+
+
+
+
+end
+GO
+/****** Object:  StoredProcedure [dbo].[sp_DeleteProduct]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_DeleteProduct]
+    @ProductID int
+AS
+BEGIN
+    update Products set isActive=0
+    WHERE productId = @ProductID
+
+
+
+
+    update UniqueProducts set isActive=0
+    where productId = @ProductID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_DeleteUser]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_DeleteUser]
+    @userID int
+AS
+BEGIN
+    DELETE FROM Users
+    WHERE UserID = @userID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_EditInventory]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_EditInventory]
+    @productId INT, 
+    @inventory INT
+AS
+BEGIN
+    DECLARE @currentInventory int, @counter int = 1
+    Set @currentInventory =  (Select inventory from Products where productId = @productId)
+
+
+
+
+    --Insert values in UniquesProducts table
+    WHILE @counter <= @inventory
+    BEGIN
+        INSERT INTO UniqueProducts(productId)
+        VALUES(@productId)
+        SET @counter= @counter + 1
+    END
+
+
+
+
+    UPDATE Products 
+    SET    
+           Inventory = @currentInventory + @inventory                 
+    WHERE  ProductID = @productID
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[sp_EditProduct]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_EditProduct]
+    @productId INT, 
+    @title NVARCHAR(55), 
+    @description NVARCHAR(max), 
+    @category VARCHAR(55), 
+    @price float, 
+    @inventory INT, 
+    @imageUrl VARCHAR(max)
+AS
+BEGIN
+    DECLARE @currentInventory int, @counter int = 1
+    Set @currentInventory =  (Select inventory from Products where productId = @productId)
+
+
+
+
+    --Insert values in UniquesProducts table
+    WHILE @counter <= @inventory
+    BEGIN
+        INSERT INTO UniqueProducts(productId)
+        VALUES(@productId)
+        SET @counter= @counter + 1
+    END
+
+
+
+
+    UPDATE Products 
+    SET    Title = @title, 
+           description = @description, 
+           Category = @category, 
+           Price = @price, 
+           Inventory = @currentInventory + @inventory, 
+           ImageUrl = @imageUrl                     
+    WHERE  ProductID = @productID 
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_EditProducts]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[sp_EditProducts]
+    @productID INT, 
+    @title NVARCHAR(55), 
+    @description NVARCHAR(max), 
+    @category VARCHAR(55), 
+    @price float, 
+    @inventory INT, 
+    @imageUrl VARCHAR(max)
+AS
+BEGIN
+    UPDATE Products 
+    SET    Title = @title, 
+           description = @description, 
+           Category = @category, 
+           Price = @price, 
+           Inventory = @inventory, 
+           ImageUrl = @imageUrl                     
+    WHERE  ProductID = @productID 
+END 
+--------------------------------------------------------------------------------------------
+
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[sp_EditUser]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_EditUser]
+    @userId INT, 
+    @fullName varchar(55),
+    @userName varchar(50),
+    @email varchar(55),
+    @passwordHash varbinary(256),
+    @passwordSalt varbinary(256)
+AS
+BEGIN
+  UPDATE Users 
+  SET 
+    FullName = @FullName,
+    Username = @Username, 
+    Email = @Email,
+    PasswordHash = @PasswordHash, 
+    PasswordSalt = @PasswordSalt
+  WHERE userId = @userId
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetAllActiveCarts]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create   procedure [dbo].[sp_GetAllActiveCarts]
+as
+begin
+select cartId into #temp1 from CartHeader where isActive=1
+    
+    select * into #temp2 from cartdetails where cartID in (select cartId from #temp1)
+    
+    select * from #temp2 As c inner join products as p on c.productID= p.productId inner join cartHeader as d on c.cartId=d.cartId
+end
+GO
+/****** Object:  StoredProcedure [dbo].[sp_getallcart]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create   procedure [dbo].[sp_getallcart]
+@buyerId int
+
+
+
+
+As
+Begin
+
+
+
+
+    select cartId into #temp1 from CartHeader where buyerId=@buyerId and isActive=0
+    
+    select * into #temp2 from cartdetails where cartID in (select cartId from #temp1)
+    
+    select * from #temp2 As c inner join products as p on c.productID= p.productId inner join cartHeader as d on c.cartId=d.cartId
+    
+End 
+GO
+/****** Object:  StoredProcedure [dbo].[sp_getAllKeys]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_getAllKeys]
+AS  
+BEGIN  
+    -- SET NOCOUNT ON added to prevent extra result sets from  
+    -- interfering with SELECT statements.  
+    SET NOCOUNT OFF; 
+    SELECT * FROM SigningKeys
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetAllProducts]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+CREATE     PROCEDURE [dbo].[sp_GetAllProducts]
+AS
+BEGIN 
+    SELECT productId,title,description,category,price,inventory,imageUrl,rating,sellerId FROM Products where isActive=1
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_getcart]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE       procedure [dbo].[sp_getcart]
+@buyerId int
+
+
+
+
+As
+Begin
+    declare @cartId int
+    set @cartId = (select cartId from CartHeader where buyerId=@buyerId and isActive=1)
+
+
+
+
+    select * into #temp from cartdetails where cartId in (@cartId)
+
+
+
+
+    select * from #temp As c inner join products as p on c.productID= p.productId
+    
+    drop table #temp
+End 
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetInventorById]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_GetInventorById]
+    @productId int
+AS
+BEGIN 
+    SELECT productId,title,inventory FROM Products 
+    Where productId = @productId
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetProductById]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_GetProductById]
+    @productId int
+AS
+BEGIN 
+    SELECT productId,title,description,category,price,inventory,imageUrl,rating FROM Products 
+    Where productId = @productId
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetProductCount]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_GetProductCount]
+    @SellerId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT COUNT(*) FROM Products
+    Where sellerId = @sellerId AND isActive=1
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetProductsByCategory]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_GetProductsByCategory]
+    @category varchar(50)
+AS
+BEGIN 
+    SELECT productId,title,description,category,price,inventory,imageUrl,rating,sellerId FROM Products 
+    Where category = @category
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetProductsWithPagination]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_GetProductsWithPagination]
+    @PageNumber INT,
+    @PageSize INT,
+    @SellerId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+
+
+
+    -- Getting total product count
+    DECLARE @TotalProductCount INT;
+    SELECT @TotalProductCount = COUNT(*) FROM Products;
+
+
+
+
+    -- Calculating total number of pages
+    DECLARE @TotalPages INT = CEILING(CONVERT(DECIMAL(18, 2), @TotalProductCount) / @PageSize);
+
+
+
+
+    -- Handle if the page number exceeds the total pages
+    IF @PageNumber > @TotalPages 
+        SET @PageNumber = @TotalPages;
+
+
+
+
+    DECLARE @Offset INT = (@PageNumber - 1) * @PageSize;
+
+
+
+
+    -- Number of products to get and handling products on the last page, if there are less than page size
+    DECLARE @ProductsToFetch INT; 
+    IF @PageNumber = @TotalPages SET @ProductsToFetch = @TotalProductCount - @Offset; 
+    ELSE SET @ProductsToFetch = @PageSize;
+
+
+
+
+    -- Finally select the products
+    SELECT productId,title,description,category,price,inventory,imageUrl,rating FROM Products
+    Where sellerId = @sellerId AND isActive=1
+    ORDER BY productId 
+    OFFSET @Offset ROWS 
+    FETCH NEXT @ProductsToFetch ROWS ONLY
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetSellerProducts]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_GetSellerProducts]
+    @sellerId int
+AS
+BEGIN 
+    SELECT productId,title,description,category,price,inventory,imageUrl,rating FROM Products 
+    Where sellerId = @sellerId AND isActive=1
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetUser]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE    PROCEDURE [dbo].[sp_GetUser]
+    @userName VARCHAR(50)
+AS
+BEGIN 
+    SELECT * FROM Users
+    WHERE userName = @userName;
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_RegisterUser]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_RegisterUser]
+    @fullName varchar(55),
+    @userName varchar(50),
+    @email varchar(55),
+    @passwordHash varbinary(256),
+    @passwordSalt varbinary(256),
+    @userType varchar(10)
+AS
+BEGIN
+  INSERT INTO Users(FullName, Username, Email, PasswordHash, PasswordSalt, UserType) 
+  VALUES (@FullName, @Username, @Email, @PasswordHash, @PasswordSalt, @UserType)     
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_rejectedTokenList]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[sp_rejectedTokenList]
+AS  
+BEGIN  
+    -- SET NOCOUNT ON added to prevent extra result sets from  
+    -- interfering with SELECT statements.  
+    SET NOCOUNT ON; 
+SELECT tokens FROM RejectedTokens
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_removefromcart]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE     procedure [dbo].[sp_removefromcart]
+@productId int,
+@buyerId int,
+@cartId int
+As
+Begin
+IF (Select count(*) from CartHeader where cartId=@cartId and buyerId=@buyerId)>0
+begin
+delete from CartDetails where productID=@productId and cartId=@cartId
+update CartHeader set totalPrice=(select sum(productTotalPrice) from CartDetails where cartId=@cartId),Date=GETDATE() where cartId=@cartId
+IF (Select count(*) from CartDetails where cartId=@cartId)=0
+begin
+    delete from CartHeader where buyerId=@buyerId and isActive=1
+end
+end
+
+
+
+
+End
+GO
+/****** Object:  StoredProcedure [dbo].[zz]    Script Date: 7/26/2023 2:06:59 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create procedure [dbo].[zz] as
+begin
+
+
+
+
+select 1 from CartDetails
+    select 1 from Products
+        select 1
+end
+GO
+USE [master]
+GO
+ALTER DATABASE [ProjectDB] SET  READ_WRITE 
+GO
+ 
