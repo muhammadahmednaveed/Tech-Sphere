@@ -293,6 +293,51 @@ namespace TopShopBuyer.DataLayer
             
             
         }
+
+        public async Task<List<Cart>> GetAllActiveCarts()
+        {
+            List<Cart> allCarts = new List<Cart>();
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+
+                using (SqlCommand cmd = new SqlCommand("sp_GetAllActiveCarts", con))
+                {
+                    
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    
+                    await con.OpenAsync();
+                    SqlDataReader sdr = await cmd.ExecuteReaderAsync();
+
+                    Cart cart = new Cart();
+                    int cartId = 0;
+
+                    while (await sdr.ReadAsync())
+                    {
+                        if (!(cartId == Convert.ToInt32(sdr[1])))
+                        {
+                            if (cartId != 0)
+                            {
+                                allCarts.Add(cart);
+                                cart = new Cart();
+                            }
+
+
+                            cartId = Convert.ToInt32(sdr[1]);
+                        }
+
+                        Product product = new();
+                        product.Id = Convert.ToInt32(sdr[5]);
+                        cart.CartId = Convert.ToInt32(sdr[1]);
+                        cart.BuyerId = Convert.ToInt32(sdr[18]);
+                        cart.Products.Add(product);
+                    }
+                    sdr.Close();
+                    allCarts.Add(cart);
+                }
+
+                return allCarts;
+            }
+        }
     }
 
    

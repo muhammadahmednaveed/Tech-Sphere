@@ -54,7 +54,8 @@ export class CartComponent implements OnInit {
   }
   async checkout() {
     await this.api.checkout(this.cart.CartId);
-    await this.signalr.requesttoServer('checkout', this.cart.CartId);
+    await this.signalr.requesttoServer('checkout', this.cart.Products.map((p) => p.Id));
+    //TODO clear cart when redirecting to all products
   }
 
   changeQuantity(product: Product) {

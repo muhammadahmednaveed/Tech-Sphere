@@ -14,5 +14,7 @@ namespace TopShopBuyer.DataLayer
         Task<Cart> GetCart();
         Task<List<Cart>> GetAllCarts();
 
+        Task<List<Cart>> GetAllActiveCarts();
+
     }
 }

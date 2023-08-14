@@ -7,10 +7,20 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 export class SignalrService {
   constructor() {}
   hubConnectionBuilder!: HubConnection;
-
+  url: string = 'http://localhost/TopShopBuyer/signalr';
   makeConnection(): HubConnection {
+    // if(JSON.parse(localStorage.getItem('User')).Username == "ahmed")
+    // {
+    //   this.url = 'http://localhost/TopShopBuyer2/signalr';
+    // }
+
     this.hubConnectionBuilder = new HubConnectionBuilder()
-      .withUrl('http://localhost/TopShopBuyer/signalr')
+      .withUrl(this.url, {
+        accessTokenFactory: () =>
+          JSON.parse(localStorage.getItem('User')).Token,
+        withCredentials: false,
+      })
+      .withAutomaticReconnect()
       .build();
     this.hubConnectionBuilder
       .start()
@@ -19,11 +29,11 @@ export class SignalrService {
     return this.hubConnectionBuilder;
   }
 
-  async requesttoServer(action: string, data: any) {
+  async requesttoServer(action: string, products:number[]) {
     switch (action) {
       case 'checkout': {
         await this.hubConnectionBuilder
-          .invoke('onCheckout', data)
+          .invoke('OnCheckout', products)
           .then((message) => console.log(message));
         return;
       }

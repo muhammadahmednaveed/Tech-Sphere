@@ -12,7 +12,7 @@ export class BuyerUIComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.HubConnection = this.signalr.makeConnection();
-    this.HubConnection.on('onCheckout', (message: string) => {
+    this.HubConnection.on('OnCheckout', (message: string) => {
       this.messages.push(message);
       setTimeout(() => {
         this.messages = this.messages.filter((m) => m !== message);

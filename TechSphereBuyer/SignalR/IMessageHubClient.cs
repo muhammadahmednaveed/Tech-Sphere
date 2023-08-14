@@ -6,7 +6,7 @@ namespace TopShopBuyer.SignalR
     public interface IMessageHubClient
     {
 
-            Task onCheckout(string message);
+            Task OnCheckout(string message);
         
     }
 }
