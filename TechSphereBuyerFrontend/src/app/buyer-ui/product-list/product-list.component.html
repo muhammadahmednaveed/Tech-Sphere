@@ -1,0 +1,11 @@
+<div class="album py-5 bg-light">
+  <div class="container">
+    <h1 class="text-center mb-5">{{ category }}</h1>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+      <div class="col" *ngFor="let item of products | searchFilter : inputText">
+        <app-product [prod]="item"></app-product>
+      </div>
+    </div>
+  </div>
+</div>

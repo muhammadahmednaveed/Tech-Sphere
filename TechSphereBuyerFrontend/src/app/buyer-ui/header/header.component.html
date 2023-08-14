@@ -1,0 +1,78 @@
+<header class="p-3 border-bottom">
+  <div class="container">
+    <div
+      class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
+    >
+      <a
+        routerLink="home"
+        class="d-flex align-items-center me-2 mb-2 mb-lg-0 text-dark text-decoration-none"
+        ><i style="font-size: 25px" class="fa fa-shopping-bag"
+          >&nbsp; <strong>TopShop</strong></i
+        >
+      </a>
+
+      <ul
+        class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+      >
+        <li>
+          <a routerLink="products/allproducts" class="nav-link px-2 link-dark"
+            >All Products</a
+          >
+        </li>
+        <li>
+          <div class="dropdown text-end px-2 nav-link">
+            <a
+              role="button"
+              class="d-blocktext-decoration-none link-dark dropdown-toggle text-decoration-none"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Categories
+            </a>
+            <ul class="dropdown-menu text-small">
+              <li *ngFor="let item of categories">
+                <button class="dropdown-item" routerLink="products/{{ item }}">
+                  {{ item }}
+                </button>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+
+      <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+        <input
+          (keyup)="search($event)"
+          type="search"
+          class="form-control"
+          placeholder="Search..."
+          aria-label="Search"
+        />
+      </form>
+      <button routerLink="cart" class="btn me-3">
+        <i style="font-size: 20px" class="fas fa-cart-plus"></i>
+      </button>
+      <div class="dropdown text-end">
+        <a
+          href="#"
+          class="d-block link-dark text-decoration-none dropdown-toggle"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <strong>{{ username }}</strong>
+        </a>
+        <ul class="dropdown-menu text-small">
+          <li>
+            <a class="dropdown-item btn" routerLink="/TopShop/profile/1"
+              >Profile</a
+            >
+          </li>
+          <li><hr class="dropdown-divider" /></li>
+          <li>
+            <a class="dropdown-item btn" (click)="logout()">Sign out</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
