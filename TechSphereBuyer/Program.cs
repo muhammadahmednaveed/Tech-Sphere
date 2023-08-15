@@ -14,6 +14,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TopShopBuyer.SignalR;
 using System.Threading.Tasks;
+using JWTAuthentication.BusinessLayer;
+using MyProject.DataLayer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +49,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IProducts,Products>();
 builder.Services.AddSingleton<ITokenHelper, TokenHelper>();
+builder.Services.AddScoped<IDBHelper, DBHelper>();
+builder.Services.AddScoped<IAuthBL, AuthBL>();
 builder.Services.AddSignalR();
     //.AddStackExchangeRedis("");
 //builder.Services.AddScoped<IProductsBL, ProductsBL>();

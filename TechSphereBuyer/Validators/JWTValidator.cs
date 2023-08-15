@@ -13,12 +13,12 @@ namespace JWTAuthentication.Validators
     public class JWTValidator : JwtSecurityTokenHandler
     {
         
+        private readonly ITokenHelper _token;
         public JWTValidator(IConfiguration configuration)
         {
             _token = new TokenHelper(configuration);
             //_context = new HttpContextAccessor();
         }
-        ITokenHelper _token;
         //private IHttpContextAccessor _context;
 
         public override ClaimsPrincipal ValidateToken(string token, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
