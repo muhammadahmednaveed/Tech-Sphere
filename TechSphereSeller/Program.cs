@@ -1,38 +1,29 @@
-
-using JWTAuthentication.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using MyProject.DataLayer;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
-using Serilog;
-using JWTAuthentication.DataLayer;
-using JWTAuthentication.BusinessLayer;
+using TopShopSeller;
+using TopShopSeller.Core;
+using TopShopSeller.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-var logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .CreateLogger();
-builder.Logging.ClearProviders();
-builder.Logging.AddSerilog(logger);
-
-
-builder.Services.AddControllers().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null); ;
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddScoped<IDBHelper, DBHelper>();
-builder.Services.AddSingleton<ITokenHelper, TokenHelper>();
-builder.Services.AddScoped<IAuthBL, AuthBL>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IValidator<UserRegister>, RegistrationValidator>();
+builder.Services.AddScoped<IValidator<UserLogin>, LoginValidator>();
+builder.Services.AddScoped<IValidator<Product>, ProductValidator>();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
-        builder.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().SetIsOriginAllowed((host) => true).AllowCredentials());
+    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
 
 builder.Services.AddSwaggerGen(options =>
@@ -56,9 +47,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
             ValidateIssuer = false,
-            ValidateAudience = false
+            ValidateAudience = false,
         };
-        options.SecurityTokenValidators.Add(new JWTValidator());
     });
 
 var app = builder.Build();
@@ -70,11 +60,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+app.UseHttpsRedirection();
 
 app.UseCors();
 
-app.UseHttpsRedirection();
+app.UseTokenValidator();
 
 app.UseAuthentication();
 

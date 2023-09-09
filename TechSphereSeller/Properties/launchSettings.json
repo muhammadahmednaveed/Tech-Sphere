@@ -4,23 +4,23 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iis": {
-      "applicationUrl": "http://localhost/Auth",
+      "applicationUrl": "http://localhost/topshopseller",
       "sslPort": 0
     },
     "iisExpress": {
-      "applicationUrl": "http://localhost:22878",
-      "sslPort": 44333
+      "applicationUrl": "http://localhost:26002",
+      "sslPort": 44338
     }
   },
   "profiles": {
-    "JWTAuthentication": {
+    "TopShopSeller": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:7101;http://localhost:5101",
+      "applicationUrl": "https://localhost:7116;http://localhost:5116",
       "dotnetRunMessages": true
     },
     "IIS Express": {
