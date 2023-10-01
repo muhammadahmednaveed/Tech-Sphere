@@ -51,6 +51,7 @@ builder.Services.AddScoped<IProducts,Products>();
 builder.Services.AddSingleton<ITokenHelper, TokenHelper>();
 builder.Services.AddScoped<IDBHelper, DBHelper>();
 builder.Services.AddScoped<IAuthBL, AuthBL>();
+builder.Services.AddScoped<SellerDataAccess>();
 builder.Services.AddSignalR();
     //.AddStackExchangeRedis("");
 //builder.Services.AddScoped<IProductsBL, ProductsBL>();
@@ -89,6 +90,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("LoginSecure", policy => policy.RequireClaim(ClaimTypes.Role));
+    options.AddPolicy("Seller", policy => policy.RequireClaim(ClaimTypes.Role,"Seller"));
 });
 
 

@@ -21,7 +21,7 @@ namespace MyProject.DataLayer
         public DBHelper(IConfiguration configuration)
         {
 
-            connectionString = configuration.GetConnectionString("DefaultConnection");
+            connectionString = configuration.GetConnectionString("ProjectDB");
         }
 
         public async Task<bool> Register(UserRegister user)

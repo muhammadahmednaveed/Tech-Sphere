@@ -1,17 +1,21 @@
-﻿using System.Data;
+﻿using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 using System.Data.SqlClient;
-using TopShopSeller.Models;
+using System.Threading.Tasks;
+using System;
+using TopShopBuyer.Models;
+using System.Data;
 
-namespace TopShopSeller.Core
+namespace TopShopBuyer.DataLayer
 {
-    public class ProductService : IProductService
+    public class SellerDataAccess
     {
         private readonly IConfiguration _configuration;
         private readonly string connectionString = string.Empty;
-        public ProductService(IConfiguration configuration)
+        public SellerDataAccess(IConfiguration configuration)
         {
             _configuration = configuration;
-            connectionString = _configuration.GetSection("ConnectionStrings:DefaultConnection").Value;
+            connectionString = _configuration.GetSection("ConnectionStrings:ProjectDB").Value;
         }
 
 
@@ -117,9 +121,9 @@ namespace TopShopSeller.Core
         /// <param name="pageSize"></param>
         /// <param name="sellerId"></param>
         /// <returns></returns>
-        public async Task<List<SellerProduct>> GetSellerProducts(int pageNumber, int pageSize, int sellerId)
+        public async Task<List<Product>> GetSellerProducts(int pageNumber, int pageSize, int sellerId)
         {
-            List<SellerProduct> sellerProductsList = new();
+            List<Product> sellerProductsList = new();
             using SqlConnection con = new(connectionString);
             await con.OpenAsync();
             using SqlCommand cmd = new("sp_GetProductsWithPagination", con);
@@ -131,7 +135,7 @@ namespace TopShopSeller.Core
 
             while (await sdr.ReadAsync())
             {
-                SellerProduct product = new();
+                Product product = new();
                 product.Id = Convert.ToInt32(sdr["productId"]);
                 product.Title = sdr["title"].ToString();
                 product.Description = sdr["description"].ToString();
@@ -151,7 +155,7 @@ namespace TopShopSeller.Core
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
-        public async Task<SellerProduct> GetProductById(int productId)
+        public async Task<Product> GetProductById(int productId)
         {
             using SqlConnection con = new(connectionString);
             await con.OpenAsync();
@@ -159,7 +163,7 @@ namespace TopShopSeller.Core
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@productId", productId);
             using SqlDataReader sdr = await cmd.ExecuteReaderAsync();
-            SellerProduct product = new();
+            Product product = new();
 
             if (await sdr.ReadAsync())
             {
@@ -182,7 +186,7 @@ namespace TopShopSeller.Core
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
-        public async Task<ProductInventory> GetInventoryById(int productId)
+        public async Task<Product> GetInventoryById(int productId)
         {
             using SqlConnection con = new(connectionString);
             await con.OpenAsync();
@@ -190,7 +194,7 @@ namespace TopShopSeller.Core
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@productId", productId);
             using SqlDataReader sdr = await cmd.ExecuteReaderAsync();
-            ProductInventory productInventory = new();
+            Product productInventory = new();
 
             if (await sdr.ReadAsync())
             {

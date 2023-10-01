@@ -1,26 +1,22 @@
-﻿using FluentValidation;
-using FluentValidation.Results;
+﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TopShopSeller.Core;
-using TopShopSeller.Models;
+using System.Threading.Tasks;
+using TopShopBuyer.DataLayer;
+using TopShopBuyer.Models;
 
 namespace TopShopSeller.Controllers
 {
-    [Authorize(Roles = "seller")]
-    [Route("api/[controller]")]
+    [Authorize(Roles = "Seller")]
+    [Route("[controller]")]
     [ApiController]
     public class ProductsController : Controller
     {
-        private readonly IProductService _productService;
-        private readonly string _requestLocation;
-        private readonly IValidator<Product> _productValidator;
+        private readonly SellerDataAccess _sellerDataAccess;
 
-        public ProductsController(IProductService productService, IHttpContextAccessor HttpContext, IValidator<Product> productValidator)
+        public ProductsController(SellerDataAccess sellerDataAccess)
         {
-            _productService = productService;
-            _requestLocation = HttpContext.HttpContext.Request.Path;
-            _productValidator = productValidator;
+            _sellerDataAccess = sellerDataAccess;
         }
 
         [AllowAnonymous]
@@ -32,7 +28,7 @@ namespace TopShopSeller.Controllers
             {
                 if (productId != 0)
                 {
-                    var product = await _productService.GetProductById(productId);
+                    var product = await _sellerDataAccess.GetProductById(productId);
                     if (product == null)
                     {
                         return NotFound("Product does not exist.");
@@ -54,12 +50,7 @@ namespace TopShopSeller.Controllers
         {
             try
             {
-                ValidationResult result = await _productValidator.ValidateAsync(product);
-                var editedProduct = await _productService.EditProduct(product, productId);
-                if (!result.IsValid)
-                {
-                    return BadRequest(result);
-                }
+                var editedProduct = await _sellerDataAccess.EditProduct(product, productId);
                 return Ok(editedProduct);
             }
             catch
@@ -75,7 +66,7 @@ namespace TopShopSeller.Controllers
         {
             try
             {
-                var deleted = await _productService.DeleteProduct(productId);
+                var deleted = await _sellerDataAccess.DeleteProduct(productId);
                 if (!deleted)
                 {
                     return NotFound("Product does not exist.");
@@ -94,13 +85,8 @@ namespace TopShopSeller.Controllers
         {
             try
             {
-                ValidationResult result = await _productValidator.ValidateAsync(product);
-                var newProduct = await _productService.AddProduct(product, sellerId);
-                if (!result.IsValid)
-                {
-                    return BadRequest(result);
-                }
-                return Created(_requestLocation, newProduct);
+                var newProduct = await _sellerDataAccess.AddProduct(product, sellerId);
+                return Ok(newProduct);
             }
             catch
             {
@@ -116,7 +102,7 @@ namespace TopShopSeller.Controllers
             {
                 if (sellerId > 0)
                 {
-                    var productCount = await _productService.GetSellerProductCount(sellerId);
+                    var productCount = await _sellerDataAccess.GetSellerProductCount(sellerId);
                     return Ok(productCount);
                 }
                 return BadRequest("Invalid seller Id");
@@ -136,7 +122,7 @@ namespace TopShopSeller.Controllers
             {
                 if (pageNumber > 0 && pageSize > 0 && sellerId > 0)
                 {
-                    var products = await _productService.GetSellerProducts(pageNumber, pageSize, sellerId);
+                    var products = await _sellerDataAccess.GetSellerProducts(pageNumber, pageSize, sellerId);
                     if (products.Count <= 0)
                     {
                         return NoContent();
@@ -160,7 +146,7 @@ namespace TopShopSeller.Controllers
             {
                 if (productId > 0)
                 {
-                    var productInventory = await _productService.GetInventoryById(productId);
+                    var productInventory = await _sellerDataAccess.GetInventoryById(productId);
                     if (productInventory == null)
                     {
                         return NotFound("Product does not exist.");
@@ -182,7 +168,7 @@ namespace TopShopSeller.Controllers
         {
             try
             {
-                var edited = await _productService.EditInventory(productId, inventory);
+                var edited = await _sellerDataAccess.EditInventory(productId, inventory);
                 if (!edited)
                 {
                     return NotFound("Product does not exist.");
